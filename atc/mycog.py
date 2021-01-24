@@ -4,7 +4,7 @@ import json
 from json import JSONEncoder
 import discord
 
-class Mycog(commands.Cog):
+class AtcCog(commands.Cog):
     def __init__(self):
         self.config = Config.get_conf(self, identifier=1846792015)
 
