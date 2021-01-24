@@ -28,7 +28,8 @@ class Mycog(commands.Cog):
                 await ctx.send(content)
 
     @commands.group(pass_context=True)
-    @commands.mod_or_permissions(discord.Permissions.manage_messages)
+    @commands.guild_only()
+    @commands.mod_or_permissions(manage_messages=True)
     async def blist(self, ctx: commands.Context):
         """Blacklist of whoever should not be able to interact with the bot"""
         if ctx.invoked_subcommand is None:
