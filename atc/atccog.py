@@ -20,7 +20,7 @@ class AtcCog(commands.Cog):
         """Responds (to optional channel) the supplied message"""
         list = await self.config.guild(ctx.guild).blacklisted_users()
         if ctx.message.author.id in list:
-            await ctx.send("User blacklisted")
+            return
         else:
             if channel:
                     await channel.send(content)
