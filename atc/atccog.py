@@ -10,7 +10,6 @@ class AtcCog(commands.Cog):
 
         default_guild = {
             "blacklisted_users": [],
-            "baz": 1234567890
         }
         self.config.register_guild(**default_guild)
         
@@ -40,8 +39,11 @@ class AtcCog(commands.Cog):
         """Add Member to the blacklist"""
         guild_group = self.config.guild(ctx.guild)
         async with guild_group.blacklisted_users() as list:
-            list.append(user.id)
-        await ctx.send('Added {0} to the blacklist'.format(user))
+            if user.id in list:
+                await ctx.send('{0} already on blacklist.'.format(user))
+            else:
+                list.append(user.id)
+                await ctx.send('Added {0} to the blacklist'.format(user))
 
     @blist.command(pass_context=True)
     async def rem(self, ctx: commands.Context, user: discord.User):
