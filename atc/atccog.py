@@ -50,8 +50,11 @@ class AtcCog(commands.Cog):
         """Remove Member from the blacklist"""
         guild_group = self.config.guild(ctx.guild)
         async with guild_group.blacklisted_users() as list:
-            list.remove(user.id)
-        await ctx.send('Removed {0} from the blacklist'.format(user))
+            if user.id in list:
+                list.remove(user.id)
+                await ctx.send('Removed {0} from the blacklist'.format(user))
+            else:
+                await ctx.send('{0} not on the blacklist'.format(user))
 
     @blist.command(pass_context=True)
     async def list(self, ctx: commands.Context):
