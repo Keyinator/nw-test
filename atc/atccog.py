@@ -1,8 +1,8 @@
-from redbot.core import Config, commands
 from typing import Optional
-import json
-from json import JSONEncoder
+
 import discord
+from redbot.core import Config, commands
+
 
 class AtcCog(commands.Cog):
     def __init__(self):
@@ -12,20 +12,19 @@ class AtcCog(commands.Cog):
             "blacklisted_users": [],
         }
         self.config.register_guild(**default_guild)
-        
 
     @commands.command()
-    async def say(self, ctx: commands.Context, channel: Optional[discord.TextChannel] = None, *, content:str):
+    async def say(self, ctx: commands.Context, channel: Optional[discord.TextChannel] = None, *, content: str):
         """Responds (to optional channel) the supplied message"""
-        list = await self.config.guild(ctx.guild).blacklisted_users()
-        if ctx.message.author.id in list:
-            return
-        else:
+        blacklist = await self.config.guild(ctx.guild).blacklisted_users()
+        if ctx.message.author.id not in blacklist:
             async with ctx.typing():
                 if channel:
-                        await channel.send(content)
+                    await channel.send(content)
                 else:
                     await ctx.send(content)
+        else:
+            return
 
     @commands.group(pass_context=True)
     @commands.guild_only()
@@ -41,11 +40,11 @@ class AtcCog(commands.Cog):
         """Add Member to the blacklist"""
         async with ctx.typing():
             guild_group = self.config.guild(ctx.guild)
-            async with guild_group.blacklisted_users() as list:
-                if user.id in list:
+            async with guild_group.blacklisted_users() as blacklist:
+                if user.id in blacklist:
                     await ctx.send('{0} already on blacklist.'.format(user))
                 else:
-                    list.append(user.id)
+                    blacklist.append(user.id)
                     await ctx.send('Added {0} to the blacklist'.format(user))
 
     @blist.command(pass_context=True)
@@ -53,9 +52,9 @@ class AtcCog(commands.Cog):
         """Remove Member from the blacklist"""
         async with ctx.typing():
             guild_group = self.config.guild(ctx.guild)
-            async with guild_group.blacklisted_users() as list:
-                if user.id in list:
-                    list.remove(user.id)
+            async with guild_group.blacklisted_users() as blacklist:
+                if user.id in blacklist:
+                    blacklist.remove(user.id)
                     await ctx.send('Removed {0} from the blacklist'.format(user))
                 else:
                     await ctx.send('{0} not on the blacklist'.format(user))
@@ -65,4 +64,7 @@ class AtcCog(commands.Cog):
         """Output blacklist"""
         async with ctx.typing():
             guild_group = await self.config.guild(ctx.guild).blacklisted_users()
-            await ctx.send("\n".join(str(ctx.bot.get_user(user)) for user in guild_group))
+            if len(guild_group) != 0:
+                await ctx.send("\n".join(str(ctx.bot.get_user(user)) for user in guild_group))
+            else:
+                await ctx.send('Blacklist empty')
